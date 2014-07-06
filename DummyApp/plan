@@ -1,0 +1,13 @@
+- google maps
+- user login with our api and save session
+- menu navigation, back and forth between screens
+- tableview/scrollview
+
+
+
+NAV
+
+
+				-> screen2A -> screen3
+menu -> screen1 -> screen2B
+				-> screen2C
