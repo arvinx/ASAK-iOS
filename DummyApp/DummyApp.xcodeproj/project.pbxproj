@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A250DBAD1968DC64008C0014 /* UserSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A250DBAC1968DC64008C0014 /* UserSessionManager.m */; };
+		A250DBB61968FDB8008C0014 /* JNKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = A250DBB51968FDB8008C0014 /* JNKeychain.m */; };
 		A25178FD194E67D300FACCAD /* Event.m in Sources */ = {isa = PBXBuildFile; fileRef = A25178FC194E67D300FACCAD /* Event.m */; };
 		A2517906194E79EF00FACCAD /* host2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = A2517905194E79EF00FACCAD /* host2.jpg */; };
 		A254502A1942B37F00BD90DF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A25450291942B37F00BD90DF /* Foundation.framework */; };
@@ -69,6 +70,8 @@
 		7715888FD528489E85512F2C /* libPods-DummyApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DummyApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A250DBAB1968DC64008C0014 /* UserSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserSessionManager.h; sourceTree = "<group>"; };
 		A250DBAC1968DC64008C0014 /* UserSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserSessionManager.m; sourceTree = "<group>"; };
+		A250DBB41968FDB8008C0014 /* JNKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JNKeychain.h; sourceTree = "<group>"; };
+		A250DBB51968FDB8008C0014 /* JNKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JNKeychain.m; sourceTree = "<group>"; };
 		A25178FB194E67D300FACCAD /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Event.h; sourceTree = "<group>"; };
 		A25178FC194E67D300FACCAD /* Event.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Event.m; sourceTree = "<group>"; };
 		A2517905194E79EF00FACCAD /* host2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = host2.jpg; sourceTree = "<group>"; };
@@ -273,6 +276,8 @@
 		A254505E1942DE4700BD90DF /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				A250DBB41968FDB8008C0014 /* JNKeychain.h */,
+				A250DBB51968FDB8008C0014 /* JNKeychain.m */,
 				A254505F1942DE6E00BD90DF /* DummyNetworking.h */,
 				A25450601942DE6E00BD90DF /* DummyNetworking.m */,
 				A250DBAB1968DC64008C0014 /* UserSessionManager.h */,
@@ -475,6 +480,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A250DBB61968FDB8008C0014 /* JNKeychain.m in Sources */,
 				A25178FD194E67D300FACCAD /* Event.m in Sources */,
 				A2A779591943D7A30099BC88 /* Screen3.m in Sources */,
 				A2549A0019561AA70065ACE0 /* MapBottomBar.m in Sources */,

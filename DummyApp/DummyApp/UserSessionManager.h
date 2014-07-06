@@ -7,13 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "JNKeychain.h"
+#import "DummyNetworking.h"
 #include "constants.h"
+@import Security;
 
 
 @interface UserSessionManager : NSObject
 
 + (void)createNewUserSession:(NSString*)token withRefreshToken:(NSString*)refreshToken withExpireTime:(NSString*)expireTime;
-+ (void)refreshUserSession:(NSDictionary *)refreshResponse;
++ (void)refreshUserSession;
 + (void)checkShouldRefreshAndRefreshSession;
 + (NSString *)getUserSessionToken;
 

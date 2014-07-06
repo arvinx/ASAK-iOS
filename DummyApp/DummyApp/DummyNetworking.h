@@ -18,7 +18,7 @@
 
 - (void)getRequest:(NSString *)notificationReciever;
 - (void)postRequest:(NSString *)requestType withParams:(NSDictionary *)params withFailureBlock:(void (^)(void))failureBlock
-    withSuccesBlock:(void (^)(void))successBlock;
+    withSuccesBlock:(void (^)(id))successBlock;
 
 @end
 

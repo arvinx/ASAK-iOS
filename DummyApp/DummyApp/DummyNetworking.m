@@ -7,6 +7,7 @@
 //
 
 #import "DummyNetworking.h"
+#import "UserSessionManager.h"
 #import "AFNetworking.h"
 
 @implementation DummyNetworking
@@ -43,11 +44,16 @@ static NSString * const BaseURLString = @"http://www.raywenderlich.com/demos/wea
     [operation start];
 }
 
-- (void)postRequest:(NSString *)requestType withParams:(NSDictionary *)params withFailureBlock:(void (^)(void))failureBlock withSuccesBlock:(void (^)(void))successBlock {
+- (void)postRequest:(NSString *)requestType withParams:(NSDictionary *)params withFailureBlock:(void (^)(void))failureBlock withSuccesBlock:(void (^)(id))successBlock {
+    [UserSessionManager checkShouldRefreshAndRefreshSession];
+    
     NSString *url = nil;
     if ([requestType isEqualToString:kRequestTypeLogin]) {
         url = [NSString stringWithFormat:@"%@%@", kBaseURL, kLoginEndpoint];
+    } else if([requestType isEqualToString:kRequestTypeRefreshToken]) {
+        url = [NSString stringWithFormat:@"%@%@", kBaseURL, kEndpointRefreshToken];
     }
+    
     
     NSMutableDictionary *paramsWithClientId = [NSMutableDictionary dictionaryWithDictionary:params];
     [paramsWithClientId setObject:kClientId forKey:kClientIdKey];
@@ -62,12 +68,16 @@ static NSString * const BaseURLString = @"http://www.raywenderlich.com/demos/wea
             [strongDelegate requestDidFinish:self response:responseObject forRequestType:kRequestTypeLogin];
         }
         
-        successBlock();
+        if (successBlock != nil) {
+            successBlock(responseObject);
+        }
 
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
-
-        failureBlock();
+        
+        if (failureBlock != nil) {
+            failureBlock();
+        }
     }];
     
 }
