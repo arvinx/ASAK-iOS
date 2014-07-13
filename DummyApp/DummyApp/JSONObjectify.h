@@ -1,13 +1,13 @@
 //
-//  DataModel.h
+//  JSONObjectify.h
 //  DummyApp
 //
-//  Created by Arvin Rezvanpour on 2014-06-07.
+//  Created by Arvin Rezvanpour on 2014-07-13.
 //  Copyright (c) 2014 Arvin Rezvanpour. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@interface DataModel : NSObject
+@interface JSONObjectify : NSObject
 
 @end

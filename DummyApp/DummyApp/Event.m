@@ -9,8 +9,5 @@
 #import "Event.h"
 
 @implementation Event
-//@synthesize name;
-//@synthesize snippit;
-//@synthesize longitude;
-//@synthesize latitude;
+
 @end

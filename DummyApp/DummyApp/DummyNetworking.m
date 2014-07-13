@@ -9,6 +9,7 @@
 #import "DummyNetworking.h"
 #import "UserSessionManager.h"
 #import "AFNetworking.h"
+#import "Reachability.h"
 
 /*
  CACHE POLICIES
@@ -27,6 +28,7 @@
 
 - (void)getRequest:(NSString *)requestType withParams:(NSDictionary *)params withFailureBlock:(void (^)(void))failureBlock withSuccesBlock:(void (^)(id))successBlock {
 
+
     [UserSessionManager checkShouldRefreshAndRefreshSession];
     
     NSString *url = nil;
@@ -38,7 +40,14 @@
     manager.requestSerializer = [AFHTTPRequestSerializer serializer];
     manager.responseSerializer = [AFJSONResponseSerializer serializer];
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"Bearer %@", [UserSessionManager getUserSessionToken]] forHTTPHeaderField:kHeaderAuth];
-    [manager.requestSerializer setCachePolicy:NSURLRequestUseProtocolCachePolicy];
+    
+    NetworkStatus status = [[Reachability reachabilityForInternetConnection] currentReachabilityStatus];
+    if (status == NotReachable) {
+        [manager.requestSerializer setCachePolicy:NSURLRequestReturnCacheDataDontLoad];
+    } else {
+        [manager.requestSerializer setCachePolicy:NSURLRequestUseProtocolCachePolicy];
+    }
+   
     [manager.requestSerializer setTimeoutInterval:20.0];
     
     

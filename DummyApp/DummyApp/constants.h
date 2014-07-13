@@ -38,7 +38,26 @@
 
 //events
 #define kRequestTypeEvent                       @"kRequestTypeEvent"
+#define kEventName                              @"name"
+#define kEventUrl                               @"url"
+#define kEventId                                @"id"
+#define kEventStartTime                         @"start_time"
+#define kEventEndTime                           @"end_time"
+#define kEventLocationLat                       @"location_lat"
+#define kEventLocationlong                      @"location_long"
+#define kEventAddress                           @"address"
+#define kEventDescription                       @"description"
+#define kEventTags                              @"tags"
+#define kEventHost                              @"host"
+#define kEventUpvotes                           @"upvotes"
+#define kEventDownvotes                         @"downvotes"
+#define kEventAttendees                         @"attendees"
 
+//member
+#define kMemberUrl                              @"url"
+#define kMemberUsername                         @"username"
+#define kMemberFirstName                        @"first_name"
+#define kMemberAvatarUrl                        @"avatar"
 
 
 #endif
