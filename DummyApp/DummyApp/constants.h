@@ -11,15 +11,19 @@
 
 #define kKeyChainId                             @"ASAK-token"
 
+#define kHeaderAuth                             @"Authorization"
 #define kClientIdKey                            @"client_id"
 #define kClientId                               @"jsotKeCi-Xu4xHz9ax8uQlhKmtWB4xTKhn1xyer-"
 #define kBaseURL                                @"https://tools.elkyr.com"
 #define kLoginEndpoint                          @"/o/token/"
 #define kEndpointRefreshToken                   @"/o/token/"
+#define kEndpointEvent                          @"/api/smak/events/"
+
 
 #define kRequestTypeLogin                       @"kRequestTypeLogin"
 #define kRequestTypeRefreshToken                @"kRequestTypeRefreshToken"
 
+//login
 #define kLoginRequestParamUsername              @"username"
 #define kLoginRequestParamPassword              @"password"
 #define kLoginRequestGrantTypeParam             @"grant_type"
@@ -31,6 +35,10 @@
 #define kLoginResponseRefreshToken              @"refresh_token"
 
 #define kCurrentSystemTime                      @"kCurrentSystemTime"
+
+//events
+#define kRequestTypeEvent                       @"kRequestTypeEvent"
+
 
 
 #endif

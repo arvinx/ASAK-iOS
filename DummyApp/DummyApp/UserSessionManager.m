@@ -38,6 +38,7 @@ static int isFetchingRefresh = 0;
 
 + (void)checkShouldRefreshAndRefreshSession {
     if (isFetchingRefresh > 0) return;
+    if ([JNKeychain loadValueForKey:kLoginResponseToken] == nil) return;
     isFetchingRefresh++;
     double currentTime = [[NSDate date] timeIntervalSince1970];
     double lastTimeGotToken = [[JNKeychain loadValueForKey:kCurrentSystemTime] doubleValue];

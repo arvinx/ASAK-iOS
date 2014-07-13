@@ -10,6 +10,7 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import "Event.h"
 #import "MapBottomBar.h"
+#import "DummyNetworking.h"
 
 
 @interface Screen2B ()
@@ -53,6 +54,14 @@ MapBottomBar *bottomBar;
 //    
 //    
 //    [locationManager startUpdatingLocation];
+    DummyNetworking *dummyNetwork = [[DummyNetworking alloc] init];
+
+    void (^successBlock)(id) = ^(id responseObject) {
+        NSLog([responseObject description]);
+    };
+    
+    [dummyNetwork getRequest:kRequestTypeEvent withParams:nil withFailureBlock:nil withSuccesBlock:successBlock];
+    
     
     bottomBar = [[[NSBundle mainBundle] loadNibNamed:@"MapInfoView" owner:self options:nil] lastObject];
     CGRect screenRect = [[UIScreen mainScreen] bounds];

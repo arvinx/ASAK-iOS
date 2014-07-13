@@ -16,7 +16,7 @@
 
 @property (nonatomic, weak) id<RequestFinishedDelegate> delegate;
 
-- (void)getRequest:(NSString *)notificationReciever;
+- (void)getRequest:(NSString *)requestType withParams:(NSDictionary *)params withFailureBlock:(void (^)(void))failureBlock withSuccesBlock:(void (^)(id))successBlock;
 - (void)postRequest:(NSString *)requestType withParams:(NSDictionary *)params withFailureBlock:(void (^)(void))failureBlock
     withSuccesBlock:(void (^)(id))successBlock;
 

@@ -15,6 +15,12 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [GMSServices provideAPIKey:@"AIzaSyCBaoq9KgQNct37KiHhnrdpEy_fhNdiHLw"];
+    
+    NSURLCache *URLCache = [[NSURLCache alloc] initWithMemoryCapacity:100 * 1024 * 1024
+                                                         diskCapacity:100 * 1024 * 1024
+                                                             diskPath:nil];
+    [NSURLCache setSharedURLCache:URLCache];
+    
     return YES;
 }
 							

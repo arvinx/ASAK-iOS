@@ -10,38 +10,59 @@
 #import "UserSessionManager.h"
 #import "AFNetworking.h"
 
+/*
+ CACHE POLICIES
+ 
+ UseProtocolCachePolicy                         Default behavior
+ ReloadIgnoringLocalCacheData                   Don't use the cache
+ ReloadIgnoringLocalAndRemoteCacheData          ---Seriously, don't use the cache
+ ReturnCacheDataElseLoad                        Use the cache (no matter how out of date), or if no cached response exists, load from the network
+ ReturnCacheDataDontLoad                        Offline mode: use the cache (no matter how out of date), but don't load from the network
+ ReloadRevalidatingCacheData                    ---Validate cache against server before using
+ 
+*/
+
 @implementation DummyNetworking
 
-static NSString * const BaseURLString = @"http://www.raywenderlich.com/demos/weather_sample/";
 
-- (void)getRequest:(NSString *)notificationReciever {
-    NSString *string = [NSString stringWithFormat:@"%@weather.php?format=json", BaseURLString];
-    NSURL *url = [NSURL URLWithString:string];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+- (void)getRequest:(NSString *)requestType withParams:(NSDictionary *)params withFailureBlock:(void (^)(void))failureBlock withSuccesBlock:(void (^)(id))successBlock {
+
+    [UserSessionManager checkShouldRefreshAndRefreshSession];
     
-    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    operation.responseSerializer = [AFJSONResponseSerializer serializer];
+    NSString *url = nil;
+    if ([requestType isEqualToString:kRequestTypeEvent]) {
+        url = [NSString stringWithFormat:@"%@%@", kBaseURL, kEndpointEvent];
+    }
+
+    AFHTTPRequestOperationManager *manager = [[AFHTTPRequestOperationManager manager] initWithBaseURL:[NSURL URLWithString:kBaseURL]];
+    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    manager.responseSerializer = [AFJSONResponseSerializer serializer];
+    [manager.requestSerializer setValue:[NSString stringWithFormat:@"Bearer %@", [UserSessionManager getUserSessionToken]] forHTTPHeaderField:kHeaderAuth];
+    [manager.requestSerializer setCachePolicy:NSURLRequestUseProtocolCachePolicy];
+    [manager.requestSerializer setTimeoutInterval:20.0];
     
     
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [manager GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         id<RequestFinishedDelegate> strongDelegate = self.delegate;
         
         if ([strongDelegate respondsToSelector:@selector(requestDidFinish:response:forRequestType:)]) {
-            [strongDelegate requestDidFinish:self response:responseObject forRequestType:kRequestTypeLogin];
+            [strongDelegate requestDidFinish:self response:responseObject forRequestType:requestType];
+        }
+        
+        if (successBlock != nil) {
+            successBlock(responseObject);
         }
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error Retrieving Weather"
-                                                            message:[error localizedDescription]
-                                                           delegate:nil
-                                                  cancelButtonTitle:@"Ok"
-                                                  otherButtonTitles:nil];
-        [alertView show];
+        
+        NSLog(@"Error: %@", error);
+        
+        if (failureBlock != nil) {
+            failureBlock();
+        }
     }];
 
-    [operation start];
 }
 
 - (void)postRequest:(NSString *)requestType withParams:(NSDictionary *)params withFailureBlock:(void (^)(void))failureBlock withSuccesBlock:(void (^)(id))successBlock {
@@ -59,6 +80,8 @@ static NSString * const BaseURLString = @"http://www.raywenderlich.com/demos/wea
     [paramsWithClientId setObject:kClientId forKey:kClientIdKey];
     
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+
     [manager POST:url parameters:paramsWithClientId success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSLog(@"JSON: %@", responseObject);
         
