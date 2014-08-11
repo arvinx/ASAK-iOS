@@ -12,6 +12,11 @@
 #import "MapBottomBar.h"
 #import "DummyNetworking.h"
 #import "JSONObjectify.h"
+#import "UserSessionManager.h"
+#import "Reachability.h"
+#import "UIImageView+AFNetworking.h"
+#import "AFNetworking.h"
+
 
 
 @interface Screen2B ()
@@ -24,6 +29,7 @@
     NSMutableArray *_events;
     NSMutableArray *_eventPins;
     BOOL firstLocationUpdate_;
+    UIImageView *_avatorImageView;
 }
 
 MapBottomBar *bottomBar;
@@ -48,28 +54,27 @@ MapBottomBar *bottomBar;
     [self setTitle:@"Screen2B"];
 
     [self allocGMaps];
-//    
-//    locationManager = [[CLLocationManager alloc] init];
-//    locationManager.distanceFilter = kCLDistanceFilterNone;
-//    locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters; // 100 m
-//    
-//    
-//    [locationManager startUpdatingLocation];
+    
     DummyNetworking *dummyNetwork = [[DummyNetworking alloc] init];
 
     void (^successBlock)(id) = ^(id responseObject) {
         NSLog([responseObject description]);
         NSArray *events = [JSONObjectify makeObject:responseObject forRequestType:kRequestTypeEvent];
-        NSLog([events description]);
         _events = [NSMutableArray arrayWithArray:events];
-        
         [self dropPins];
-
     };
     
-    [dummyNetwork getRequest:kRequestTypeEvent withParams:nil withFailureBlock:nil withSuccesBlock:successBlock];
+    void (^requestBlock)(void) = ^{
+        [dummyNetwork getRequest:kRequestTypeEvent withParams:nil withFailureBlock:nil withSuccesBlock:successBlock];
+    };
     
-    
+    NetworkStatus status = [[Reachability reachabilityForInternetConnection] currentReachabilityStatus];
+    if (status != NotReachable) {
+        [UserSessionManager checkShouldRefreshAndRefreshSession:requestBlock];
+    } else {
+        [dummyNetwork getRequest:kRequestTypeEvent withParams:nil withFailureBlock:nil withSuccesBlock:successBlock];
+    }
+
     bottomBar = [[[NSBundle mainBundle] loadNibNamed:@"MapInfoView" owner:self options:nil] lastObject];
     CGRect screenRect = [[UIScreen mainScreen] bounds];
     [bottomBar setFrame:CGRectMake(0, screenRect.size.height, screenRect.size.width, 100)];
@@ -105,12 +110,6 @@ MapBottomBar *bottomBar;
         mapView_.myLocationEnabled = YES;
     });
 }
-//
-//- (NSString *)deviceLocation {
-//    NSString *theLocation = [NSString stringWithFormat:@"latitude: %f longitude: %f", locationManager.location.coordinate.latitude, locationManager.location.coordinate.longitude];
-//    return theLocation;
-//}
-
 
 - (void) dropPins
 {
@@ -121,6 +120,7 @@ MapBottomBar *bottomBar;
         _apin.title = event.name;
 //        _apin.snippet = event.snippit;
         _apin.position = CLLocationCoordinate2DMake(event.location_lat, event.location_long);
+        _apin.icon = event.host.avatar;
         _apin.flat = YES;
         _apin.userData = event;
         [_eventPins addObject:_apin];
@@ -132,47 +132,6 @@ MapBottomBar *bottomBar;
     
     
 }
-
-//- (void) makeEvents
-//{
-//    _events = [[NSMutableArray alloc] init];
-//    Event *event = [[Event alloc] init];
-//    event.name = @"Rooftop party";
-//    event.snippit = @"free booze";
-//    event.latitude = [[NSNumber alloc] initWithDouble:47.619];
-//    event.longitude = [[NSNumber alloc] initWithDouble:-122.33316];
-//    event.date = @"Mon @ 5:30PM";
-//    event.imageHost = [UIImage imageNamed:@"host1.jpg"];
-//    [_events addObject:event];
-//    
-//    event = [[Event alloc] init];
-//    event.name = @"Basketball";
-//    event.snippit = @"court 2v2";
-//    event.date = @"Tomorrow @ 2:00PM";
-//    event.latitude = [[NSNumber alloc] initWithDouble:47.6150001];
-//    event.longitude = [[NSNumber alloc] initWithDouble:-122.3331688];
-//    event.imageHost = [UIImage imageNamed:@"host2.jpg"];
-//    [_events addObject:event];
-//    
-//    event = [[Event alloc] init];
-//    event.name = @"G3T Drunk!";
-//    event.snippit = @"house party";
-//    event.date = @"Tonight @ 11:00PM";
-//    event.latitude = [[NSNumber alloc] initWithDouble:47.617];
-//    event.longitude = [[NSNumber alloc] initWithDouble:-122.33315];
-//    event.imageHost = [UIImage imageNamed:@"host3.jpg"];
-//    [_events addObject:event];
-//    
-//    event = [[Event alloc] init];
-//    event.name = @"Karaoke ;)";
-//    event.snippit = @"Pub with few of my buds";
-//    event.date = @"Friday June 27 @ 10:00PM";
-//    event.latitude = [[NSNumber alloc] initWithDouble:47.618];
-//    event.longitude = [[NSNumber alloc] initWithDouble:-122.334];
-//    event.imageHost = [UIImage imageNamed:@"host2.jpg"];
-//    [_events addObject:event];
-//}
-
 
 - (void)didReceiveMemoryWarning
 {
@@ -193,14 +152,11 @@ MapBottomBar *bottomBar;
                       ofObject:(id)object
                         change:(NSDictionary *)change
                        context:(void *)context {
-    if (!firstLocationUpdate_) {
-        // If the first location update has not yet been recieved, then jump to that
-        // location.
-        firstLocationUpdate_ = YES;
-        CLLocation *location = [change objectForKey:NSKeyValueChangeNewKey];
-        mapView_.camera = [GMSCameraPosition cameraWithTarget:location.coordinate
-                                                         zoom:3];
-    }
+
+    firstLocationUpdate_ = YES;
+    CLLocation *location = [change objectForKey:NSKeyValueChangeNewKey];
+    mapView_.camera = [GMSCameraPosition cameraWithTarget:location.coordinate
+                                                     zoom:2];
     
     if ([keyPath isEqualToString:@"myLocation"]) {
         NSLog(@"LOCATION UPDATED");
@@ -211,15 +167,24 @@ MapBottomBar *bottomBar;
 #pragma mark - GMSMapViewDelegate
 - (BOOL) mapView:(GMSMapView *)mapView didTapMarker:(GMSMarker *)marker
 {
-//    [bottomBar setBackgroundColor:[UIColor grayColor]];
-//    bottomBar.labelTitle.text = marker.title;
     Event *event = (Event*)marker.userData;
-    bottomBar.labelTime.text = event.date;
     bottomBar.labelTitle.text = event.name;
+
+    // formatting the date
     
-    bottomBar.imageUser.contentMode = UIViewContentModeScaleAspectFit;
+    bottomBar.labelTime.text = [self getFormattedDate:event.start_time];
+    
+    //calculate distance in km
+    CLLocationCoordinate2D eventLocation;
+    eventLocation.latitude = event.location_lat;
+    eventLocation.longitude = event.location_long;
+    
+    double distanceInKm = getDistanceMetresBetweenLocationCoordinates(eventLocation, mapView_.myLocation.coordinate)/1000;
+    bottomBar.labelDistance.text = [NSString stringWithFormat:@"%.01f km away", distanceInKm];
+    
+    bottomBar.imageUser.contentMode = UIViewContentModeScaleAspectFill;
     bottomBar.imageUser.clipsToBounds = YES;
-    bottomBar.imageUser.image = event.imageHost;
+    [bottomBar.imageUser setImageWithURL:[NSURL URLWithString:event.host.avatarUrl]];
     
     if (bottomBar.tag == 0) {
         bottomBar.tag = 1;
@@ -246,50 +211,70 @@ MapBottomBar *bottomBar;
     NSLog(@"Closed map event");
 }
 
+#pragma mark - helpers
+
+double getDistanceMetresBetweenLocationCoordinates(CLLocationCoordinate2D coord1, CLLocationCoordinate2D coord2)
+{
+    CLLocation* location1 = [[CLLocation alloc] initWithLatitude: coord1.latitude longitude: coord1.longitude];
+    CLLocation* location2 = [[CLLocation alloc] initWithLatitude: coord2.latitude longitude: coord2.longitude];
+    return [location1 distanceFromLocation: location2];
+}
+
+- (NSString *) getFormattedDate:(NSString *) rawEventDate
+{
+    NSDateFormatter *dateFormatterReader = [[NSDateFormatter alloc] init];
+    [dateFormatterReader setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssz"];
+    NSDate *date = [dateFormatterReader dateFromString:rawEventDate];
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setTimeStyle:NSDateFormatterNoStyle];
+    [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+    [dateFormatter setDoesRelativeDateFormatting:YES];
+    
+    return [dateFormatter stringFromDate:date];
+}
+
 
 @end
 
 
-
-//#pragma mark -
-//#pragma mark CLLocationManagerDelegate
-//
-//-(void)locationManager:(CLLocationManager *)manager
-//   didUpdateToLocation:(CLLocation *)newLocation
-//          fromLocation:(CLLocation *)oldLocation
+//- (void) makeEvents
 //{
-//    NSString *currentLatitude = [[NSString alloc]
-//                                 initWithFormat:@"%+.6f",
-//                                 newLocation.coordinate.latitude];
+//    _events = [[NSMutableArray alloc] init];
+//    Event *event = [[Event alloc] init];
+//    event.name = @"Rooftop party";
+//    event.snippit = @"free booze";
+//    event.latitude = [[NSNumber alloc] initWithDouble:47.619];
+//    event.longitude = [[NSNumber alloc] initWithDouble:-122.33316];
+//    event.date = @"Mon @ 5:30PM";
+//    event.imageHost = [UIImage imageNamed:@"host1.jpg"];
+//    [_events addObject:event];
 //
-//    NSString *currentLongitude = [[NSString alloc]
-//                                  initWithFormat:@"%+.6f",
-//                                  newLocation.coordinate.longitude];
-//    NSString *currentHorizontalAccuracy =
-//    [[NSString alloc]
-//     initWithFormat:@"%+.6f",
-//     newLocation.horizontalAccuracy];
+//    event = [[Event alloc] init];
+//    event.name = @"Basketball";
+//    event.snippit = @"court 2v2";
+//    event.date = @"Tomorrow @ 2:00PM";
+//    event.latitude = [[NSNumber alloc] initWithDouble:47.6150001];
+//    event.longitude = [[NSNumber alloc] initWithDouble:-122.3331688];
+//    event.imageHost = [UIImage imageNamed:@"host2.jpg"];
+//    [_events addObject:event];
 //
-//    NSString *currentAltitude = [[NSString alloc]
-//                                 initWithFormat:@"%+.6f",
-//                                 newLocation.altitude];
-//    NSString *currentVerticalAccuracy =
-//    [[NSString alloc]
-//     initWithFormat:@"%+.6f",
-//     newLocation.verticalAccuracy];
+//    event = [[Event alloc] init];
+//    event.name = @"G3T Drunk!";
+//    event.snippit = @"house party";
+//    event.date = @"Tonight @ 11:00PM";
+//    event.latitude = [[NSNumber alloc] initWithDouble:47.617];
+//    event.longitude = [[NSNumber alloc] initWithDouble:-122.33315];
+//    event.imageHost = [UIImage imageNamed:@"host3.jpg"];
+//    [_events addObject:event];
 //
-//    if (_startLocation == nil)
-//        _startLocation = newLocation;
-//
-//    CLLocationDistance distanceBetween = [newLocation
-//                                          distanceFromLocation:_startLocation];
-//
-//    NSString *tripString = [[NSString alloc]
-//                            initWithFormat:@"%f",
-//                            distanceBetween];
-//
-//    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:newLocation.coordinate.latitude
-//                                                            longitude:newLocation.coordinate.longitude
-//                                                                 zoom:6];
+//    event = [[Event alloc] init];
+//    event.name = @"Karaoke ;)";
+//    event.snippit = @"Pub with few of my buds";
+//    event.date = @"Friday June 27 @ 10:00PM";
+//    event.latitude = [[NSNumber alloc] initWithDouble:47.618];
+//    event.longitude = [[NSNumber alloc] initWithDouble:-122.334];
+//    event.imageHost = [UIImage imageNamed:@"host2.jpg"];
+//    [_events addObject:event];
 //}
 

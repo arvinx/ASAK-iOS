@@ -27,9 +27,6 @@
 
 
 - (void)getRequest:(NSString *)requestType withParams:(NSDictionary *)params withFailureBlock:(void (^)(void))failureBlock withSuccesBlock:(void (^)(id))successBlock {
-
-
-    [UserSessionManager checkShouldRefreshAndRefreshSession];
     
     NSString *url = nil;
     if ([requestType isEqualToString:kRequestTypeEvent]) {
@@ -75,7 +72,7 @@
 }
 
 - (void)postRequest:(NSString *)requestType withParams:(NSDictionary *)params withFailureBlock:(void (^)(void))failureBlock withSuccesBlock:(void (^)(id))successBlock {
-    [UserSessionManager checkShouldRefreshAndRefreshSession];
+    [UserSessionManager checkShouldRefreshAndRefreshSession:nil];
     
     NSString *url = nil;
     if ([requestType isEqualToString:kRequestTypeLogin]) {

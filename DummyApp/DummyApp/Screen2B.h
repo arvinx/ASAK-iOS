@@ -13,7 +13,11 @@
 
 @interface Screen2B : UIViewController <CLLocationManagerDelegate, GMSMapViewDelegate>
 
-@property (strong, nonatomic) CLLocationManager *locationManager;
+//@property (strong, nonatomic) CLLocationManager *locationManager;
+@property(nonatomic,retain) CLLocationManager *locationManager;
+
+
 @property (strong, nonatomic) CLLocation *startLocation;
+
 
 @end

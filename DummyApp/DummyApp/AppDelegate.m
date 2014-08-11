@@ -7,7 +7,7 @@
 //
 
 #import "AppDelegate.h"
-#import "Screen2A.h"
+#import "UserSessionManager.h"
 #import "Screen2B.h"
 
 @implementation AppDelegate
@@ -20,6 +20,11 @@
                                                          diskCapacity:100 * 1024 * 1024
                                                              diskPath:nil];
     [NSURLCache setSharedURLCache:URLCache];
+    
+    if ([UserSessionManager getUserSessionToken] != nil) {
+        Screen2B* maps = [[Screen2B alloc] init];
+        self.window.rootViewController = maps;
+    }
     
     return YES;
 }

@@ -16,8 +16,8 @@
 @interface UserSessionManager : NSObject
 
 + (void)createNewUserSession:(NSString*)token withRefreshToken:(NSString*)refreshToken withExpireTime:(NSString*)expireTime;
-+ (void)refreshUserSession;
-+ (void)checkShouldRefreshAndRefreshSession;
++ (void)refreshUserSession:(void (^)(void))requestBlock;
++ (void)checkShouldRefreshAndRefreshSession:(void (^)(void))requestBlock;
 + (NSString *)getUserSessionToken;
 
 @end

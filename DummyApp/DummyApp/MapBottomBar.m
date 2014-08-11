@@ -16,8 +16,6 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        imageUser.contentMode = UIViewContentModeScaleAspectFit;
-        imageUser.clipsToBounds = YES;
 
     }
     return self;

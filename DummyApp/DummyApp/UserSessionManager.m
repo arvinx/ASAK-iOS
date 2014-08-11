@@ -21,7 +21,7 @@ static int isFetchingRefresh = 0;
 }
 
 
-+ (void)refreshUserSession {
++ (void)refreshUserSession:(void (^)(void))requestBlock {
     DummyNetworking *dummyNetworking = [[DummyNetworking alloc] init];
     NSDictionary *params = @{kLoginRequestGrantTypeParam: kRefreshTokenGrantType,
                              kLoginResponseRefreshToken: [JNKeychain loadValueForKey:kLoginResponseRefreshToken]};
@@ -31,22 +31,28 @@ static int isFetchingRefresh = 0;
         [JNKeychain saveValue:[responseObject objectForKey:kLoginResponseRefreshToken] forKey:kLoginResponseRefreshToken];
         [JNKeychain saveValue:[responseObject objectForKey:kLoginResponseExpire] forKey:kLoginResponseExpire];
         [JNKeychain saveValue:[NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]] forKey:kCurrentSystemTime];
+        if (requestBlock != nil) {
+            requestBlock();
+        }
     };
     
     [dummyNetworking postRequest:kRequestTypeRefreshToken withParams:params withFailureBlock:nil withSuccesBlock:successBlock];
 }
 
-+ (void)checkShouldRefreshAndRefreshSession {
++ (void)checkShouldRefreshAndRefreshSession:(void (^)(void))requestBlock{
     if (isFetchingRefresh > 0) return;
     if ([JNKeychain loadValueForKey:kLoginResponseToken] == nil) return;
     isFetchingRefresh++;
     double currentTime = [[NSDate date] timeIntervalSince1970];
     double lastTimeGotToken = [[JNKeychain loadValueForKey:kCurrentSystemTime] doubleValue];
     double secondsTillExpire = [[JNKeychain loadValueForKey:kLoginResponseExpire] doubleValue];
-    if (currentTime >= (lastTimeGotToken + secondsTillExpire)) {
-        [self refreshUserSession];
-        isFetchingRefresh--;
+    double willExpireAt = lastTimeGotToken + secondsTillExpire;
+    if (currentTime >= willExpireAt) {
+        [self refreshUserSession:requestBlock];
+    } else if (requestBlock != nil) {
+        requestBlock();
     }
+    isFetchingRefresh--;
 }
 
 + (NSString *)getUserSessionToken {

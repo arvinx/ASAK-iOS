@@ -30,11 +30,11 @@
 @property NSArray *attendees; //list of Member objects
 
 #pragma mark DEPRECATED
-@property NSString *snippit;
-@property NSString *date;
-@property NSNumber *longitude;
-@property NSNumber *latitude;
-@property UIImage *imageHost;
+//@property NSString *snippit;
+//@property NSString *date;
+//@property NSNumber *longitude;
+//@property NSNumber *latitude;
+//@property UIImage *imageHost;
 
 
 

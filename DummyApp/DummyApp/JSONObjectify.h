@@ -10,4 +10,6 @@
 
 @interface JSONObjectify : NSObject
 
++ (NSArray *)makeObject:(id)response forRequestType:(NSString *)requestType;
+
 @end

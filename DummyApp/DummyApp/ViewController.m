@@ -12,6 +12,8 @@
 #import "Screen2B.h"
 #import "NavBarViewController.h"
 #import "UserSessionManager.h"
+#import "UserSessionManager.h"
+
 
 @interface ViewController ()
 
